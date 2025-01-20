@@ -5,15 +5,20 @@ using UnityEngine.AI;
 
 public class PlayerMovement : MonoBehaviour
 {
+    public bool IsMoveing = false;
     [SerializeField] private float speed = 4;
 
+    private Animator animator;
     private NavMeshAgent agent;
-
+    private SpriteRenderer spriteRenderer;
     private Vector3 targetPosition;
-    private bool isMoveing = false;
+    private Vector3 direction;
 
     private void Start()
     {
+        animator = GetComponent<Animator>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
+
         agent = GetComponent<NavMeshAgent>();
         agent.updateRotation = false;
         agent.updateUpAxis = false;
@@ -23,9 +28,28 @@ public class PlayerMovement : MonoBehaviour
     {
         agent.speed = speed;
 
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) && IsMoveing)
         {
             SetTargetPosition();
+        }
+
+        if (direction.x < 0)
+        {
+            spriteRenderer.flipX = true;
+        }
+
+        if (direction.x >= 0)
+        {
+            spriteRenderer.flipX = false;
+        }
+
+        if (agent.velocity.magnitude == 0)
+        {
+            animator.SetBool("isRunning", false);
+        }
+        else if (agent.velocity.magnitude > 0)
+        {
+            animator.SetBool("isRunning", true);
         }
     }
 
@@ -35,7 +59,12 @@ public class PlayerMovement : MonoBehaviour
 
         agent.SetDestination(targetPosition);
 
-        isMoveing = true;
+        direction = (targetPosition - transform.position).normalized;
+
+       
+
+
+        IsMoveing = false;
     }
 }
 
